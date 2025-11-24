@@ -8,15 +8,38 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nfcabsensi.data.dao.StudentWithAttendance
 import com.example.nfcabsensi.databinding.ItemAttendeeBinding
 
-class AttendeeAdapter : ListAdapter<StudentWithAttendance, AttendeeAdapter.AttendeeViewHolder>(DiffCallback) {
+import android.graphics.Color
+import com.example.nfcabsensi.data.entity.StudentEvent
 
-    class AttendeeViewHolder(private val binding: ItemAttendeeBinding) : RecyclerView.ViewHolder(binding.root) {
+class AttendeeAdapter(
+    private val expectedOfflinePrice: Double,
+    private val expectedOnlinePrice: Double,
+    private val onEditClick: (StudentWithAttendance) -> Unit
+) : ListAdapter<StudentWithAttendance, AttendeeAdapter.AttendeeViewHolder>(DiffCallback) {
+
+    inner class AttendeeViewHolder(private val binding: ItemAttendeeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: StudentWithAttendance) {
             binding.tvName.text = item.student.fullName
             binding.tvNim.text = item.student.nim
 
             val status = "${item.attendance.attendanceType} - ${item.attendance.billingCode}"
             binding.tvStatus.text = status
+
+            val nominal = item.attendance.nominal
+            val type = item.attendance.attendanceType
+            val expected = if (type.equals("Offline", ignoreCase = true)) expectedOfflinePrice else expectedOnlinePrice
+
+            binding.tvNominal.text = "Rp ${nominal.toInt()}"
+
+            if (nominal < expected) {
+                binding.tvNominal.setTextColor(Color.RED)
+            } else {
+                binding.tvNominal.setTextColor(Color.BLACK)
+            }
+
+            binding.root.setOnClickListener {
+                onEditClick(item)
+            }
         }
     }
 

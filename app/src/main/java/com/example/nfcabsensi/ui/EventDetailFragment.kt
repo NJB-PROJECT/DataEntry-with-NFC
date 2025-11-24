@@ -63,7 +63,11 @@ class EventDetailFragment : Fragment() {
         viewModel.getEventById(eventId)
 
         // Setup List
-        val adapter = AttendeeAdapter()
+        // Initialize adapter with dummy values initially
+        val adapter = AttendeeAdapter(0.0, 0.0) { item ->
+            // Edit Attendance Click
+            showEditAttendanceDialog(item)
+        }
         binding.rvAttendees.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAttendees.adapter = adapter
 
@@ -72,13 +76,25 @@ class EventDetailFragment : Fragment() {
                 event?.let {
                     binding.tvDetailTitle.text = it.title
                     binding.tvDetailInfo.text = "Dosen: ${it.lecturerName}\nKetua: ${it.classLeader} (${it.classLeaderPhone})"
+
+                    // Re-create adapter with correct prices when event is loaded
+                    val newAdapter = AttendeeAdapter(it.priceOffline, it.priceOnline) { item ->
+                         showEditAttendanceDialog(item)
+                    }
+                    binding.rvAttendees.adapter = newAdapter
+                    // Re-submit current list if any
+                    val currentList = adapter.currentList
+                    if (currentList.isNotEmpty()) {
+                        newAdapter.submitList(currentList)
+                    }
                 }
             }
         }
 
         lifecycleScope.launch {
             viewModel.getStudentsWithAttendance(eventId).collectLatest { list ->
-                adapter.submitList(list)
+                (binding.rvAttendees.adapter as? AttendeeAdapter)?.submitList(list)
+                calculateSummary(list)
             }
         }
 
@@ -148,16 +164,46 @@ class EventDetailFragment : Fragment() {
             .show()
     }
 
+    private fun calculateSummary(list: List<com.example.nfcabsensi.data.dao.StudentWithAttendance>) {
+        val currentEvent = viewModel.currentEvent.value ?: return
+        var totalCollected = 0.0
+        var totalExpected = 0.0
+
+        for (item in list) {
+            totalCollected += item.attendance.nominal
+            val expected = if (item.attendance.attendanceType.equals("Offline", true))
+                currentEvent.priceOffline else currentEvent.priceOnline
+            totalExpected += expected
+        }
+
+        val debt = totalExpected - totalCollected
+
+        binding.tvTotalSummary.text = "Terkumpul: Rp ${totalCollected.toInt()} / Target: Rp ${totalExpected.toInt()}"
+        binding.tvDebtSummary.text = "Kekurangan: Rp ${debt.toInt()}"
+    }
+
     private fun showAttendanceDialog(student: Student) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_attendance_input, null)
         val etBilling = dialogView.findViewById<EditText>(R.id.et_billing_code)
         val rgType = dialogView.findViewById<RadioGroup>(R.id.rg_attendance_type)
         val tvStudentName = dialogView.findViewById<TextView>(R.id.tv_student_name_dialog)
+        val etNominal = dialogView.findViewById<EditText>(R.id.et_nominal_paid)
 
         tvStudentName.text = student.fullName
 
         // Default check Offline
         rgType.check(R.id.rb_offline)
+
+        // Update nominal hint when type changes
+        val currentEvent = viewModel.currentEvent.value
+        if (currentEvent != null) {
+            etNominal.setText(currentEvent.priceOffline.toInt().toString())
+        }
+
+        rgType.setOnCheckedChangeListener { _, checkedId ->
+             val price = if (checkedId == R.id.rb_offline) currentEvent?.priceOffline else currentEvent?.priceOnline
+             etNominal.setText(price?.toInt().toString())
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Input Data Absensi")
@@ -166,21 +212,60 @@ class EventDetailFragment : Fragment() {
                 val billingCode = etBilling.text.toString().trim()
                 val isOffline = rgType.checkedRadioButtonId == R.id.rb_offline
                 val type = if (isOffline) "Offline" else "Online"
+                val nominalInput = etNominal.text.toString().toDoubleOrNull()
 
                 // Get price from current event
-                val currentEvent = viewModel.currentEvent.value
-                val nominal = if (isOffline) currentEvent?.priceOffline else currentEvent?.priceOnline
+                val defaultNominal = if (isOffline) currentEvent?.priceOffline else currentEvent?.priceOnline
+                val finalNominal = nominalInput ?: defaultNominal ?: 0.0
 
                 val attendance = StudentEvent(
                     studentId = student.id,
                     eventId = eventId,
                     billingCode = billingCode,
                     attendanceType = type,
-                    nominal = nominal ?: 0.0,
+                    nominal = finalNominal,
                     timestamp = System.currentTimeMillis()
                 )
 
                 viewModel.submitAttendance(attendance)
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun showEditAttendanceDialog(item: com.example.nfcabsensi.data.dao.StudentWithAttendance) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_attendance_input, null)
+        val etBilling = dialogView.findViewById<EditText>(R.id.et_billing_code)
+        val rgType = dialogView.findViewById<RadioGroup>(R.id.rg_attendance_type)
+        val tvStudentName = dialogView.findViewById<TextView>(R.id.tv_student_name_dialog)
+        val etNominal = dialogView.findViewById<EditText>(R.id.et_nominal_paid)
+
+        tvStudentName.text = "Edit: ${item.student.fullName}"
+        etBilling.setText(item.attendance.billingCode)
+        etNominal.setText(item.attendance.nominal.toInt().toString())
+
+        if (item.attendance.attendanceType.equals("Online", true)) {
+            rgType.check(R.id.rb_online)
+        } else {
+            rgType.check(R.id.rb_offline)
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Absensi")
+            .setView(dialogView)
+            .setPositiveButton("Update") { _, _ ->
+                val billingCode = etBilling.text.toString().trim()
+                val isOffline = rgType.checkedRadioButtonId == R.id.rb_offline
+                val type = if (isOffline) "Offline" else "Online"
+                val nominalInput = etNominal.text.toString().toDoubleOrNull() ?: 0.0
+
+                val updatedAttendance = item.attendance.copy(
+                    billingCode = billingCode,
+                    attendanceType = type,
+                    nominal = nominalInput
+                )
+
+                viewModel.submitAttendance(updatedAttendance)
             }
             .setNegativeButton("Batal", null)
             .show()

@@ -17,4 +17,10 @@ interface StudentDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStudent(student: Student)
+
+    @androidx.room.Update
+    suspend fun updateStudent(student: Student)
+
+    @androidx.room.Delete
+    suspend fun deleteStudent(student: Student)
 }

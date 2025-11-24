@@ -18,6 +18,7 @@ import com.example.nfcabsensi.ui.viewmodel.StudentViewModel
 import com.example.nfcabsensi.ui.viewmodel.StudentViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import android.graphics.Color
 import java.util.UUID
 
 class AddStudentFragment : Fragment() {
@@ -25,6 +26,8 @@ class AddStudentFragment : Fragment() {
     private var _binding: FragmentAddStudentBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: StudentViewModel
+
+    private var isScanning = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentAddStudentBinding.inflate(inflater, container, false)
@@ -40,15 +43,15 @@ class AddStudentFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[StudentViewModel::class.java]
 
         setupNfcListener()
+        updateScanStatus()
 
         binding.btnSave.setOnClickListener {
             saveStudent()
         }
 
-        binding.btnSimulateNfc.setOnClickListener {
-            // Simulate random UID
-            val randomUid = UUID.randomUUID().toString().take(8).uppercase()
-            binding.etUid.setText(randomUid)
+        binding.btnToggleScan.setOnClickListener {
+            isScanning = !isScanning
+            updateScanStatus()
         }
 
         lifecycleScope.launch {
@@ -61,11 +64,31 @@ class AddStudentFragment : Fragment() {
         }
     }
 
+    private fun updateScanStatus() {
+        if (isScanning) {
+            binding.btnToggleScan.text = "Stop Scan NFC"
+            binding.tvScanStatus.text = "Tempelkan Kartu..."
+            binding.tvScanStatus.setBackgroundColor(Color.YELLOW)
+        } else {
+            binding.btnToggleScan.text = "Mulai Scan NFC"
+            binding.tvScanStatus.text = "Scan Non-Aktif"
+            binding.tvScanStatus.setBackgroundColor(Color.LTGRAY)
+        }
+    }
+
     private fun setupNfcListener() {
         (activity as? MainActivity)?.onNfcTagDetected = { uid ->
-            activity?.runOnUiThread {
-                binding.etUid.setText(uid)
-                Toast.makeText(requireContext(), "Kartu Terdeteksi: $uid", Toast.LENGTH_SHORT).show()
+            if (isScanning) {
+                activity?.runOnUiThread {
+                    binding.etUid.setText(uid)
+                    binding.tvScanStatus.text = "SUKSES: $uid"
+                    binding.tvScanStatus.setBackgroundColor(Color.GREEN)
+                    Toast.makeText(requireContext(), "Kartu Terdeteksi: $uid", Toast.LENGTH_SHORT).show()
+
+                    // Auto-stop scanning after success
+                    isScanning = false
+                    binding.btnToggleScan.text = "Mulai Scan NFC"
+                }
             }
         }
     }

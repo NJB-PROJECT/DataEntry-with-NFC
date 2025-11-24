@@ -24,10 +24,19 @@
             android:layout_marginEnd="8dp"/>
         <TextView
             android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Offline - Lunas"
             android:textColor="@color/teal_700"/>
+
+        <TextView
+            android:id="@+id/tv_nominal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rp 50.000"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
     </LinearLayout>
 
 </LinearLayout>
