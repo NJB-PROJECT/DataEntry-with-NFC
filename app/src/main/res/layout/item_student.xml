@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/tv_student_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="Nama Mahasiswa"/>
+
+    <TextView
+        android:id="@+id/tv_student_nim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NIM: 12345678"/>
+
+    <TextView
+        android:id="@+id/tv_student_uid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="UID: XX:XX:XX:XX"
+        android:textSize="12sp"
+        android:textColor="#777777"/>
+
+</LinearLayout>
