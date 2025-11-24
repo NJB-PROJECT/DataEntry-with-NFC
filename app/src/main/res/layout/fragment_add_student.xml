@@ -30,14 +30,30 @@
                 android:enabled="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Simulation Button for Emulator/Non-NFC devices -->
-        <Button
-            android:id="@+id/btn_simulate_nfc"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Simulasi Scan NFC (Debug)"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_toggle_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mulai Scan NFC"/>
+
+            <TextView
+                android:id="@+id/tv_scan_status"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:text="Status: Siap"
+                android:gravity="center"
+                android:background="#DDDDDD"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
