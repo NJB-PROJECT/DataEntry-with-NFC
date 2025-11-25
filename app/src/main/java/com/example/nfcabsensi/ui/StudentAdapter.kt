@@ -8,13 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nfcabsensi.data.entity.Student
 import com.example.nfcabsensi.databinding.ItemStudentBinding
 
-class StudentAdapter : ListAdapter<Student, StudentAdapter.StudentViewHolder>(DiffCallback) {
+class StudentAdapter(private val onItemClick: (Student) -> Unit) : ListAdapter<Student, StudentAdapter.StudentViewHolder>(DiffCallback) {
 
-    class StudentViewHolder(private val binding: ItemStudentBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class StudentViewHolder(private val binding: ItemStudentBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(student: Student) {
             binding.tvStudentName.text = student.fullName
             binding.tvStudentNim.text = "NIM: ${student.nim}"
             binding.tvStudentUid.text = "UID: ${student.uid}"
+
+            binding.root.setOnClickListener {
+                onItemClick(student)
+            }
         }
     }
 
