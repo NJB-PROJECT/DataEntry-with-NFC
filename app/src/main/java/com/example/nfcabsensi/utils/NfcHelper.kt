@@ -17,6 +17,8 @@ class NfcHelper(private val activity: Activity, private val listener: NfcListene
         // Workaround for some devices: set presence check delay
         options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 250)
 
+        // Adding FLAG_READER_SKIP_NDEF_CHECK can help with raw tags like Mifare Classic
+        // Removing FLAG_READER_NO_PLATFORM_SOUNDS so user hears the beep
         nfcAdapter?.enableReaderMode(
             activity,
             this,
@@ -24,7 +26,7 @@ class NfcHelper(private val activity: Activity, private val listener: NfcListene
                     NfcAdapter.FLAG_READER_NFC_B or
                     NfcAdapter.FLAG_READER_NFC_F or
                     NfcAdapter.FLAG_READER_NFC_V or
-                    NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS,
+                    NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
             options
         )
     }

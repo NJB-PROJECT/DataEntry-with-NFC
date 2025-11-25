@@ -80,10 +80,17 @@ class ExcelExporter(private val context: Context) {
             row.createCell(8).setCellValue(s.phoneNumber)
         }
 
-        // Auto size columns (basic)
-        for (i in headers.indices) {
-            sheet.autoSizeColumn(i)
-        }
+        // Auto size columns causes crash on Android due to missing AWT fonts
+        // Set manual width (approximate characters width * 256)
+        sheet.setColumnWidth(0, 5 * 256) // No
+        sheet.setColumnWidth(1, 15 * 256) // NIM
+        sheet.setColumnWidth(2, 25 * 256) // Nama
+        sheet.setColumnWidth(3, 15 * 256) // Kode Event
+        sheet.setColumnWidth(4, 15 * 256) // Kode Tagihan
+        sheet.setColumnWidth(5, 12 * 256) // Offline/Online
+        sheet.setColumnWidth(6, 15 * 256) // Nominal
+        sheet.setColumnWidth(7, 20 * 256) // Prodi
+        sheet.setColumnWidth(8, 15 * 256) // HP
 
         // Save File
         return saveFile(workbook, event.title)

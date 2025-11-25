@@ -25,6 +25,14 @@ class AppRepository(
         return studentDao.getStudentByUid(uid)
     }
 
+    suspend fun updateStudent(student: Student) {
+        studentDao.updateStudent(student)
+    }
+
+    suspend fun deleteStudent(student: Student) {
+        studentDao.deleteStudent(student)
+    }
+
     // Event
     val allEvents: Flow<List<Event>> = eventDao.getAllEvents()
 

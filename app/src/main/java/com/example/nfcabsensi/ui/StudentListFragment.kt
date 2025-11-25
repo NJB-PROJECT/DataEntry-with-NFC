@@ -38,7 +38,10 @@ class StudentListFragment : Fragment() {
         val factory = StudentViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[StudentViewModel::class.java]
 
-        val adapter = StudentAdapter()
+        val adapter = StudentAdapter { student ->
+            // On Item Click (Optional: Edit/Delete Dialog)
+            showEditDeleteDialog(student)
+        }
         binding.rvStudents.layoutManager = LinearLayoutManager(requireContext())
         binding.rvStudents.adapter = adapter
 
@@ -48,9 +51,38 @@ class StudentListFragment : Fragment() {
             }
         }
 
+        lifecycleScope.launch {
+            viewModel.eventFlow.collectLatest { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.btnAddStudent.setOnClickListener {
             findNavController().navigate(R.id.action_studentListFragment_to_addStudentFragment)
         }
+    }
+
+    private fun showEditDeleteDialog(student: com.example.nfcabsensi.data.entity.Student) {
+        val options = arrayOf("Hapus Mahasiswa")
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle(student.fullName)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> confirmDelete(student)
+                }
+            }
+            .show()
+    }
+
+    private fun confirmDelete(student: com.example.nfcabsensi.data.entity.Student) {
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Hapus ${student.fullName}?")
+            .setMessage("Data absensi terkait juga akan terhapus.")
+            .setPositiveButton("Hapus") { _, _ ->
+                viewModel.delete(student)
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     override fun onDestroyView() {

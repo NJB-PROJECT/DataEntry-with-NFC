@@ -1,27 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tempelkan Kartu KTM pada sensor NFC"
-            android:textSize="16sp"
+            android:text="Tambah Data Mahasiswa"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan NFC"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
             android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_toggle_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan Kartu"
+                app:backgroundTint="@color/primary"/>
+
+            <TextView
+                android:id="@+id/tv_scan_status"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Siap Scan"
+                android:gravity="center"
+                android:padding="10dp"
+                android:background="@drawable/ic_launcher_background"
+                android:backgroundTint="@color/background"
+                android:textColor="@color/text_secondary"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="UID (Scan NFC)"
-            android:layout_marginBottom="8dp">
+            android:hint="UID Kartu"
+            app:startIconDrawable="@drawable/ic_launcher_foreground"
+            app:startIconTint="@color/primary"
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_uid"
@@ -30,20 +72,11 @@
                 android:enabled="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Simulation Button for Emulator/Non-NFC devices -->
-        <Button
-            android:id="@+id/btn_simulate_nfc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Simulasi Scan NFC (Debug)"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_marginBottom="16dp"/>
-
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nama Lengkap"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_name"
@@ -56,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="NIM"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_nim"
@@ -69,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Program Studi"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_study_program"
@@ -82,7 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nomor HP"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="24dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_phone"
@@ -95,7 +128,8 @@
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Simpan Mahasiswa" />
+            android:text="Simpan Mahasiswa"
+            app:backgroundTint="@color/primary"/>
 
     </LinearLayout>
 </ScrollView>
