@@ -63,42 +63,6 @@ class HomeFragment : Fragment() {
         binding.btnCreateEvent.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_addEventFragment)
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val db = AppDatabase.getDatabase(requireContext())
-        val repository = AppRepository(db.studentDao(), db.eventDao(), db.studentEventDao())
-        val factory = EventViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory)[EventViewModel::class.java]
-
-        val adapter = EventAdapter { event ->
-            val bundle = Bundle().apply {
-                putInt("eventId", event.id)
-            }
-            findNavController().navigate(R.id.action_homeFragment_to_eventDetailFragment, bundle)
-        }
-
-        binding.rvEvents.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvEvents.adapter = adapter
-
-        lifecycleScope.launch {
-            viewModel.allEvents.collectLatest { events ->
-                if (events.isEmpty()) {
-                    binding.tvEmpty.visibility = View.VISIBLE
-                    binding.rvEvents.visibility = View.GONE
-                } else {
-                    binding.tvEmpty.visibility = View.GONE
-                    binding.rvEvents.visibility = View.VISIBLE
-                    adapter.submitList(events)
-                }
-            }
-        }
-
-        binding.btnCreateEvent.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_addEventFragment)
-        }
 
         // Add a temporary or permanent way to access student list.
         // For now, let's use a menu provider.
